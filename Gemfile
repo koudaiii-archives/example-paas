@@ -10,6 +10,10 @@ gem "aws-sdk"
 gem "shoulda-matchers"
 gem "rake"
 
+gem 'git'
+
 gem "docker-api", :require => "docker"
 
+
 # gem "rails"
+
