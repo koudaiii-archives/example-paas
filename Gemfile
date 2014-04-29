@@ -3,12 +3,13 @@ source "https://rubygems.org"
 
 ruby "2.1.1"
 
-gem 'configspec'
+gem 'serverspec'
 
 gem "rspec"
 gem "aws-sdk"
 gem "shoulda-matchers"
 gem "rake"
 
+gem "docker-api", :require => "docker"
 
 # gem "rails"
