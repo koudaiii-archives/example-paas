@@ -59,7 +59,7 @@ end
 repo = Repository.create(
   git_repo: 'cs006061@192.168.56.1',
   vm_addr:  '192.168.56.100',
-  basedir:  "/Users/cs006061/Project/docker-paas",
+  basedir:  "/Users/cs006061/Project/example-paas",
   docker_user: "cs006061",
 )
 puts repo.url
