@@ -29,6 +29,7 @@ class Repository
     @vm_addr     = args[:vm_addr]
     @basedir     = args[:basedir]
     @docker_user = args[:docker_user]
+    @docker_tag = args[:docker_tag]
   end
 
   def create_binding
@@ -40,7 +41,7 @@ class Repository
   end
 
   def reponame
-    sprintf("docker-paas-%04d", serial)
+    sprintf("#{@docker_tag}-%04d", serial)
   end
 
   def port
@@ -57,10 +58,11 @@ class Repository
 end
 
 repo = Repository.create(
-  git_repo: 'cs006061@192.168.56.1',
-  vm_addr:  '192.168.56.100',
-  basedir:  "/Users/cs006061/Project/example-paas",
-  docker_user: "cs006061",
+  git_repo: ENV['GIT_REPO'],
+  vm_addr:  ENV['VM_ADDR'],
+  basedir:  ENV['BASEDIR'],
+  docker_user: ENV['DOCKER_USER'],
+  docker_tag: ENV['DOCKER_TAG'],
 )
 puts repo.url
 
@@ -80,14 +82,14 @@ fi
 
 echo "-----> Fetching application source"
 
-job=$(docker run -i -a stdin <%= docker_user %>/docker-paas /bin/bash -c \
+job=$(docker run -i -a stdin <%= docker_user %>/<%= docker_tag %> /bin/bash -c \
     "git clone <%= git_repo %>:<%= dir %> /root/<%= reponame %>")
 test $(docker wait $job) -eq 0
 docker commit $job <%= docker_user %>/<%= reponame %> > /dev/null
 
 echo "-----> Building new container ..."
 
-job=$(docker run -i -a stdin -v /var/cache/docker-paas/<%= reponame %>/buildpacks:/var/cache/buildpacks <%= docker_user %>/<%= reponame %> /bin/bash -c \
+job=$(docker run -i -a stdin -v /var/cache/<%= docker_tag %>/<%= reponame %>/buildpacks:/var/cache/buildpacks <%= docker_user %>/<%= reponame %> /bin/bash -c \
     "for buildpack in /var/lib/buildpacks/*; do \$buildpack/bin/detect /root/<%= reponame %> && selected_buildpack=\$buildpack && break; done;
      if [ -n \$selected_buildpack ]; then echo \"\$selected_buildpack detected\"; else exit 1; fi;
      CURL_TIMEOUT=360 \$selected_buildpack/bin/compile /root/<%= reponame %> /var/cache/buildpacks &&

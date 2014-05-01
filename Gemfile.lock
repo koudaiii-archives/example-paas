@@ -16,6 +16,11 @@ GEM
       archive-tar-minitar
       excon (>= 0.28)
       json
+    dotenv (0.11.1)
+      dotenv-deployment (~> 0.0.2)
+    dotenv-deployment (0.0.2)
+    dotenv-rails (0.11.1)
+      dotenv (= 0.11.1)
     excon (0.33.0)
     git (1.2.6)
     highline (1.6.21)
@@ -53,6 +58,7 @@ PLATFORMS
 DEPENDENCIES
   aws-sdk
   docker-api
+  dotenv-rails
   git
   rake
   rspec

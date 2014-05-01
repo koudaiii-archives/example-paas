@@ -14,6 +14,7 @@ gem 'git'
 
 gem "docker-api", :require => "docker"
 
+gem 'dotenv-rails'
 
 # gem "rails"
 

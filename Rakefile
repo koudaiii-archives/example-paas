@@ -9,8 +9,8 @@ task :default => :spec
 
 namespace :docker do
   task :build do
-      sh("docker build -t base ./docker-app-base")
-      sh("docker build -t base .")
+      sh("docker build -t ENV['DOCKER_USER']/ENV['DOCKER_TAG'] ./docker-app-base")
+      sh("docker build -t ENV['DOCKER_USER']/ENV['DOCKER_TAG'] .")
   end
   task :create do
     puts 'create git repository'
