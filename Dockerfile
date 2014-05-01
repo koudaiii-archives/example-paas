@@ -1,5 +1,8 @@
-# FROM docker-base/Dockerfile
-FROM cs006061/base
+# FROM ENV['DOCKER_USER']/ENV['DOCKER_TAG'] 
+FROM koudaiii/example-paas
+
+MAINTAINER koudaiiii "cs006061@gmail.com"
+
 
 RUN apt-get update
 RUN apt-get install -y git
@@ -7,15 +10,9 @@ RUN apt-get clean
 
 RUN mkdir -p /root/.ssh; chmod 700 /root/.ssh
 RUN echo "Host *\n\tStrictHostKeyChecking no\n" >> /root/.ssh/config
-ADD ./id_rsa.docker-paas /root/.ssh/id_rsa
+ADD ./authorized_keys /root/.ssh/id_rsa
 RUN chmod 700 /root/.ssh/id_rsa
 
-RUN apt-get -y install build-essential
-RUN apt-get install -y ruby
-RUN apt-get install -y curl
-RUN apt-get install -y libssl-dev
-RUN apt-get install -y libssl0.9.8
- 
 ## install buildpacks
 RUN mkdir /var/lib/buildpacks
 RUN cd /var/lib/buildpacks && git clone https://github.com/heroku/heroku-buildpack-ruby

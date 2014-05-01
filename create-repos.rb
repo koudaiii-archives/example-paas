@@ -3,10 +3,11 @@
 
 require "git"
 require "erb"
+require 'dotenv'
 
 class Repository
   attr_accessor :git
-  attr_reader :git_repo, :vm_addr, :basedir, :docker_user
+  attr_reader :git_repo, :vm_addr, :basedir, :docker_user, :docker_tag
 
   def self.create(args)
     repo = self.new(args)
@@ -57,14 +58,17 @@ class Repository
   end
 end
 
+Dotenv.load
+
 repo = Repository.create(
   git_repo: ENV['GIT_REPO'],
   vm_addr:  ENV['VM_ADDR'],
   basedir:  ENV['BASEDIR'],
   docker_user: ENV['DOCKER_USER'],
-  docker_tag: ENV['DOCKER_TAG'],
+  docker_tag:  ENV['DOCKER_TAG'],
 )
 puts repo.url
+
 
 __END__
 #!/bin/bash
