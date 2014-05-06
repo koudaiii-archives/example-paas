@@ -1,2 +1,5 @@
+id_rsa.docker-paas
+docker-paas*
+example-paas*
 authorized_keys
 docker-app-base/authorized_keys
