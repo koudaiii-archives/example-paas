@@ -86,22 +86,22 @@ fi
 
 echo "-----> Fetching application source"
 
-job=$(docker run -i -a stdin <%= docker_user %>/<%= docker_tag %> /bin/bash -c \
+job=$(docker run -i -a stdin <%= docker_user %>/<%= docker_tag %> /bin/bash -l -c \
     "git clone <%= git_repo %> /root/<%= reponame %>")
 test $(docker wait $job) -eq 0
 docker commit $job <%= docker_user %>/<%= docker_tag %> > /dev/null
 
 echo "-----> Building new container ..."
 
-job=$(docker run -i -a stdin <%= docker_user %>/<%= docker_tag %> /bin/bash -c \
+job=$(docker run -i -a stdin <%= docker_user %>/<%= docker_tag %> /bin/bash -l -c \
     "/var/lib/buildpacks/heroku-buildpack-ruby/bin/detect /root/<%= reponame %> && CURL_TIMEOUT=360 /var/lib/buildpacks/heroku-buildpack-ruby/bin/compile /root/<%= reponame %> /var/cache/buildpacks && /var/lib/buildpacks/heroku-buildpack-ruby/bin/release /root/<%= reponame %> > /root/<%= reponame %>/.release")
 test $(docker wait $job) -eq 0
 docker commit $job <%= docker_user %>/<%= docker_tag %> > /dev/null
 
 echo "-----> Starting Application"
 
-job=$(docker run -i -t -d -p <%= port %>:8080 <%= docker_user %>/<%= docker_tag %> /bin/bash -c \
-     "export HOME=/root/<%= reponame %> && cd \$HOME && for file in .profile.d/*; do source \$file; done && hash -r && /var/lib/buildpacks/exec-release.rb .release")
+job=$(docker run -i -t -d -p <%= port %>:8080 <%= docker_user %>/<%= docker_tag %> /bin/bash -l -c \
+     "export HOME=/root/<%= reponame %> && /var/lib/buildpacks/exec-release.rb .release")
 
 echo $job > is_running
 echo "URL: http://<%= vm_addr %>:<%= port %>/"
