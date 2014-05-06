@@ -54,7 +54,7 @@ class Repository
   end
 
   def url
-    "#{git_repo}:#{git.dir}"
+    "#{git.dir}"
   end
 end
 
@@ -86,25 +86,30 @@ fi
 
 echo "-----> Fetching application source"
 
-job=$(docker run -i -a stdin <%= docker_user %>/<%= docker_tag %> /bin/bash -c \
-    "git clone <%= git_repo %>:<%= dir %> /root/<%= reponame %>")
+job=$(docker run -i <%= docker_user %>/<%= docker_tag %> /bin/bash -c \
+    "git clone <%= git_repo %> /root/<%= reponame %>")
 test $(docker wait $job) -eq 0
-docker commit $job <%= docker_user %>/<%= reponame %> > /dev/null
+docker commit $job <%= docker_user %>/<%= docker_tag %> > /dev/null
 
 echo "-----> Building new container ..."
 
-job=$(docker run -i -a stdin -v /var/cache/<%= docker_tag %>/<%= reponame %>/buildpacks:/var/cache/buildpacks <%= docker_user %>/<%= reponame %> /bin/bash -c \
-    "for buildpack in /var/lib/buildpacks/*; do \$buildpack/bin/detect /root/<%= reponame %> && selected_buildpack=\$buildpack && break; done;
-     if [ -n \$selected_buildpack ]; then echo \"\$selected_buildpack detected\"; else exit 1; fi;
-     CURL_TIMEOUT=360 \$selected_buildpack/bin/compile /root/<%= reponame %> /var/cache/buildpacks &&
-     \$selected_buildpack/bin/release /root/<%= reponame %> > /root/<%= reponame %>/.release")
+job=$(docker run -i  <%= docker_user %>/<%= docker_tag %> /bin/bash -c \
+    "export RBENV_ROOT=/usr/local/rbenv &&
+     export PATH=/usr/local/rbenv/bin:$PATH &&
+     eval "$(rbenv init -)" &&
+     /var/lib/buildpacks/heroku-buildpack-ruby/bin/detect /root/<%= reponame %> && 
+     CURL_TIMEOUT=360 /var/lib/buildpacks/heroku-buildpack-ruby/bin/compile /root/<%= reponame %> /var/cache/buildpacks &&
+     /var/lib/buildpacks/heroku-buildpack-ruby/bin/release /root/<%= reponame %> > /root/<%= reponame %>/.release")
 test $(docker wait $job) -eq 0
-docker commit $job <%= docker_user %>/<%= reponame %> > /dev/null
+docker commit $job <%= docker_user %>/<%= docker_tag %> > /dev/null
 
 echo "-----> Starting Application"
 
-job=$(docker run -i -t -d -p <%= port %>:8080 <%= docker_user %>/<%= reponame %> /bin/bash -c \
-    "export HOME=/root/<%= reponame %> &&
+job=$(docker run -i -t -d -p <%= port %>:8080 <%= docker_user %>/<%= docker_tag %> /bin/bash -c \
+    "export RBENV_ROOT=/usr/local/rbenv &&
+     export PATH=/usr/local/rbenv/bin:$PATH &&
+     eval "$(rbenv init -)" &&
+     export HOME=/root/<%= reponame %> &&
      cd \$HOME &&
      for file in .profile.d/*; do source \$file; done &&
      hash -r &&
